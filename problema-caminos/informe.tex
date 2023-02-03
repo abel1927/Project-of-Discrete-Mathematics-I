@@ -1,0 +1,302 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{manfnt}
+\usepackage{amsfonts,amsmath, amsthm}
+\usepackage[margin=2cm]{geometry}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+
+\begin{document}
+
+  \title{Informe\\
+  Matem\'atica Discreta I\\
+      Number of Simple Paths\\
+     Problema:1454E}
+  \author{Abel Molina S\'anchez\\
+  Grupo 2-11\\
+  Ciencias de la Computaci\'on\\
+  Universidad de La Habana}
+    \maketitle  
+
+\newpage
+
+\section{Problema}
+
+\begin{center}
+E. Number of Simple Paths
+\end{center}
+
+
+You are given an undirected graph consisting of n vertices and n edges. It is guaranteed that the given graph is connected (i. e. it is possible to reach any vertex from any other vertex) and there are no self-loops and multiple edges in the graph.\\
+Your task is to calculate the number of simple paths of length at least $1$ in the given graph. Note that paths that differ only by their direction are considered the same (i. e. you have to calculate the number of undirected paths). For example, paths $[1,2,3]$ and $[3,2,1]$
+are considered the same.\\
+You have to answer $t$ independent test cases.\\
+Recall that a path in the graph is a sequence of vertices $v_1,v_2,…,v_k$ such that each pair of adjacent (consecutive) vertices in this 
+sequence is connected by an edge. The length of the path is the number of edges in it. A simple path is such a path that all vertices in it are distinct.\\
+\\
+Input:\\
+The first line of the input contains one integer $t$ $(1\leq t\leq 2*10^4)$ — the number of test cases. Then $t$ test cases follow.\\
+The first line of the test case contains one integer $n$ $(3\leq n\leq 2*10^5)$ — the number of vertices (and the number of edges) in the graph.\\
+The next $n$ lines of the test case describe edges: edge $i$ is given as a pair of vertices \\
+$u_i$, $v_i$ $(1\leq u_i,v_i\leq n$, $u_i\neq v_i)$, where $u_i$ and $v_i$ are vertices the $i-th$ edge connects. 
+For each pair of vertices $(u,v)$, there is at most one edge between $u$ and $v$. There are no edges from the vertex to itself. 
+So, there are no self-loops and multiple edges in the graph. The graph is undirected, i. e. all its edges are bidirectional. The graph is connected, i. e. it is possible to reach any vertex from any other vertex by moving along the edges of the graph.\\
+It is guaranteed that the sum of $n$ does not exceed $2*10^5$ $(\sum n \leq 2*10^5)$.\\
+\\
+Output:\\
+For each test case, print one integer: the number of simple paths of length at least $1$ in the given graph. 
+Note that paths that differ only by their direction are considered the same (i. e. you have to calculate the number of undirected paths).\\
+
+
+
+
+\section{Interpretación e idea} 
+
+En el problema se pide determinar el n\'umero de caminos simples en un grupo de grafos conexos no dirigidos que tienen igual cantidad de v\'ertices y aristas.\\
+
+La idea de la soluci\'on pasa por determinar que el grafo contiene un \'unico ciclo simple, y en base a esto vamos a buscar la f\'ormula con 
+la cual determinar el n\'umero de caminos. Para esto, tenemos en cuenta que los v\'ertices que no pertenecen al ciclo inducir\'an \'arboles 
+junto al v\'ertice del ciclo con el cual comparten aristas. O sea, que de quitar las aristas del ciclo, lo que quedan son componentes conexas que constituyen \'arboles. Luego vamos a determinar la cantidad de caminos simples que existen en un \'arbol y luego buscaremos todos los 
+caminos que incluyen las aristas del ciclo. Esto en el sentido te\'orico. Una vez demostrado, en la implementaci\'on realizaremos una 
+b\'usqueda en profundiad en el grafo para determinar el ciclo que contiene. Luego recorreremos cada una de las 'componentes' descritas anteriormente con otra b\'usqueda en profundidad para determinar su cantidad de v\'ertices; y luego aplicaremos la f\'ormula para determinar la cantidad de caminos simples. La f\'ormula la hallaremos en el desarrollo de la demostraci\'on del problema a continuaci\'on. 
+
+
+
+
+
+
+
+\section{Demostración}
+
+
+
+\textit{\textbf{Lema1:}
+Un grafo $G$ es conexo $\Leftrightarrow$ admite un \'arbol abarcador.}\\
+\textit{Demostraci\'on:}\\
+($\Leftarrow$) Sea $T$ un \'arbol abarcador de $G$. Sean $u,v$ v\'ertices de $G$. En $T$ existe un camino $p$ de $u$ a $v$. Como $T$ es subgrafo de $G$, $p$ ser\'a tambi\'en un camino en $G$ de $u$ a $v$. Por lo tanto $G$ es conexo.\\
+($\Rightarrow$)  Por inducci\'on en la cantidad de v\'ertices de $G$. Si $G$ es trivial $G$ es \'arbol abarcador de si mismo. Supongamos que 
+se cumple para todo grafo $G$ conexo con $n$ v\'ertices. Sea $G$ conexo con $n+1$ v\'ertices. Seleccionemos un v\'ertice $v$ de $G$, extraemos $v$ con todas sus aristas incidentes, si $G-\{v\}$ es conexo, entonces, tiene un \'arbol abarcador por hip\'otesis, lo seleccionamos, le agregamos $v$ con una de sus aristas y tendremos un \'arbol abarcador para $G$. Ahora analicemos cuando $v$ desconecta a $G$. Sean $G_i$ las k componentes conexas que se forman al extraer $v$; $v$ tiene aristas con al menos un $v_i$ de cada componente, porque $G$ era conexo. Por hip\'otesis, sean $T_i$ los \'arboles abarcadores de cada uno de los $G_i$. Ahora construyamos $T$ resultado de unir los $T_i$ conect\'andolos a $v$ a trav\'es de una de las aristas $(v,v_i)$. No se forman ciclos porque $G_i$ eran componentes conexas(no hay v\'ertices entre ellas). Ahora $\sum |V[T_i]| = n$ porque est\'an todos los v\'ertices de $G$ excepto $v$, luego al formar \\
+$T$ se tiene $|V[T]|=n+1$.\\ 
+Ahora $\sum\limits_{i}^{k} |E[T_i]| = \sum\limits_{i}^{k} |V[T_i]|-1 = n-k$, por lo cual luego de conectar los $T_i$ a $v$ a trav\'es de 
+las aristas $(v,v_i)$ se agregan $k$ aristas por lo cual $|E[T]| = n-k+k=n$, luego T es un \'arbol abarcador de $G$. Con lo cual se completa la demostraci\'on por inducci\'on matem\'atica.\\
+\\   
+
+
+\textit{\textbf{Teorema1:} Un grafo $G=(V,E)$ no dirigido conexo con $|V|=n$ y $|E| = n$ ($n\geq 3$) tiene un \'unico ciclo.}\\
+\textit{Demostraci\'on:} Sea $T$ un \'arbol abarcador de $G$(Lema1), $T$ tiene $n$ v\'ertices y $n-1$ aristas. Sea $e = (u,v)$ la arista de $G$ que no est\'a en $T$. Sea $p$ el camino de $u$ a $v$ en $T$. $p\cup \{(u,v)\}$ forman un ciclo.\\
+Supongamos que hay otro ciclo $C$ en $G$. Si $C$ no contiene a $e$, entonces $C$ forma parte de 
+$T$ lo cual contradice que $T$ es un \'arbol. Luego si $C$ contiene a $e$, $C$ est\'a formado por $e$ en uni\'on con un camino entre $u$ y $v$ en $T$, sea $q$ este camino. $q=p$ porque de lo contrario habr\'ia dos caminos, $p$ y $q$ entre $u$ y $v$ en $T$, lo cual contradice que $T$ sea un \'arbol.\\
+\\
+
+
+Sea ahora el grafo $G$ inicial, sea $C=\{c_1,c_2,...,c_k,c_1\}$ el ciclo de $G$, $C$ es simple ya que es \'unico en $G$.
+Se tiene que:\\
+$G$ tiene $n$ v\'ertices y $n$ aristas.\\
+$C$ tiene $k$ v\'ertices y $k$ aristas\\
+$G-C$ tiene $n-k$ v\'ertices y $n-k$ aristas.\\
+Sean $C_i$ las componentes conexas que se froman al eliminar las $k$ aristas del ciclo($c_i\in V[C_i]$ ya que los v\'ertices del 
+ciclo se conectan entre ellos solo a trav\'es de aristas del ciclo, ya que de lo contrario, existir\'ia alg\'un camino que conectara a un 
+$c_i$ con un $c_j$ que unido a uno de los caminos del ciclo crear\'ia otro ciclo lo cual es una contradicci\'on).\\ 
+Demostremos que $C_i$ son \'arboles. No existen 
+cilcos en $C_i$ porque esto implicar\'ia la existencia de un ciclo en $G$, lo cual contradice que $C$ sea el \'unico ciclo en $G$. Luego como 
+$C_i$ es conexo y no posee ciclos, $C_i$ es un \'arbol.\\
+
+Luego, vamos a buscar la f\'ormula para calcular la cantidad de caminos en $G$, llamemos $S$ a esta cantidad. Tenemos que:\\
+$S = S_1 + S_2$\\
+donde $S_1$ ser\'a la cantidad de caminos que no incluyen aristas del ciclo $C$, y $S_2$ la cantidad que incluyen aristas del 
+ciclo $C$.\\
+\\
+
+Busquemos $S_1$ apoyados en el siguiente Lema:\\
+
+\textit{\textbf{Lema2:}
+La cantidad de caminos simples diferentes en un \'arbol $T$ no dirigido con n v\'ertices es $n(n-1)/2$.}\\
+\textit{Demostraci\'on:} Hagamos inducci\'on en la cantidad de v\'ertices. Si $|V[T]|=1$, no hay caminos y se tiene que 
+$0 = 1(0)/2$, por lo cual se cumple para  $|V[T]| = 1$. Supongamos por hip\'otesis que se cumple para $n = k$, esto es en un \'arbol con
+ $|V[T]| = k$, hay $k(k-1)/2$ caminos simples diferentes. Ahora demostremos que se cumple para $k+1$. Sea $T$ un \'arbol de $k$ v\'ertices si
+ agregamos un v\'ertice $v$ por una arista $(v,t_i)$, $t_i\in V[T]$, $T'=T+\{v\}$ es un \'arbol con $k+1$ arsitas ya que: la ocurrencia de un ciclo en $T'$ implica la ocurrencia de un ciclo en $T$ porque $v$ tiene una \'unica arista incidente con lo cual no puede fomar parte de un ciclo. Luego $T'$ es ac\'iclico y al agregar un v\'ertice  y $T'$ es conexo ya que como $T$ es conexo hay un camino que une a cualquier v\'ertice con $t_i$, ese camino unido a la arista $(t_i,v_i)$ es un camino desde esos v\'ertices hasta $v$. Ahora, al agregar $v$, tenemos 
+$k$ nuevos caminos en $T'$, los que unen a $v$ con cada uno de los $k$ restantes v\'ertices. Luego, tenemos:\\
+\begin{equation}
+ \begin{split}
+\frac{k+1(k)}{2} &=^? \frac{k(k-1)}{2} + k\\
+ 		         &=^? \frac{(k^2-k+2k)}{2}\\
+ 		         &=^? \frac{(k^2+k)}{2}\\
+ 		         &= \frac{(k+1)k}{2}\\
+  \end{split}
+\end{equation}
+Luego $k\Rightarrow k+1$ hemos demostrado el lema por inducci\'on mat\'atica.\\
+\\
+
+Luego tenemos que la cantidad de caminos que no incluyen aristas del ciclo ser\'a:\\
+
+$S_1 = \sum\limits_{1}^{k} \frac{|V[C_i]|(|V[C_i]|-1)}{2} $\\
+\\
+ 
+
+Ahora vamos a buscar la cantidad de caminos que incluyen aristas del ciclo:\\
+
+\textit{\textbf{Lema4:}
+Todos los caminos que unen a v\'ertices de $C_i$ con v\'ertices de $C_j$ pasan por $c_i$.}\\
+\textit{Demostraci\'on:} Sean $v_i$ y $v_j$ dos v\'ertices conectados a trav\'es de caminos que no incluyen a $c_i$ y $c_j$, luego como existen los caminos $v_i\leadsto c_i\leadsto \ c_j\leadsto v_j$ habr\'ian dos caminos en el grafo que los conectan, lo cual implica la existencia de un ciclo y como $v_i$,$v_j\notin C$, ser\'ia un ciclo distinto de $C$ lo cual contradice que $C$ es el \'unico ciclo del grafo.\\
+\\ 
+
+\textit{\textbf{Lema5:}
+Sean $c_i$ y $c_j$ dos v\'ertices de $C$, existen dos caminos y solo dos caminos.}\\
+\textit{Demostraci\'on}: Demostremos que existen dos caminos y luego que son \'unicos.
+Que existen dos caminos es directo del hecho de que forman parte del ciclo $C$, elegimos $c_i$ como v\'ertice inicial y tendremos un camino de
+ $c_i\leadsto c_j$  con un grupo de v\'ertices de $C$ y un camino de $c_j\leadsto c_i$ con los restantes. Ahora supongamos que existiera
+ un tercer camino distinto de los anteriores, llam\'emosle $q$, si $q$ es disjunto de $p_1$ y $p_2$(los dos caminos del ciclo), entonces, 
+con $q$ y uno de los dos se forma otro ciclo lo cual contradice la unicidad de $C$. Ahora supongamos que tuvieran intersecci\'on en alg\'un \
+v\'ertice, sin p\'erdida de generalidad digamos que en $v\in p_1$, luego tendr\'iamos un ciclo formando por el subcamino de $p_1$ de $c_i$ a
+ $v$ y otro con el subacamino de $q$ de $c_i$ a $v$ lo cual contradice la unicidad de $C$.\\
+\\
+
+\textit{\textbf{Teorema2:} Para cada v\'ertice de $v_i\in C_i$ existen dos caminos que lo unen a los v\'ertices de $G-\{C_i\}$}\\
+\textit{Demostraci\'on:} Por resultado directo de los lemas 4 y 5 tenemos que cada camino desde los $v_i$ a un $C_j$ pasa contiene a 
+$c_i$ y a $c_j$ y que entre $c_i$ y $c_j$ hay exactamente 2 caminos. Sean estos caminos $p_1$ y $p_2$, tenemos que para los $v_i$:\\
+los caminos $v_i\leadsto c_i\leadsto^{p_1} c_j\leadsto v_j$ y  $v_i\leadsto c_i\leadsto^{p_2} c_j\leadsto v_j$ (posible $c_i=v_i$, $c_j=v_j$).\\
+
+Luego vamos a determinar el valor de $S_2$ :\\
+Para cada $v_i\in C_i$ tenemos 2 caminos que los conectan con los v\'ertices de $G-\{C_i\}$, entones la cantidad de caminos que 
+empiezan en $v_i$ y que contienen aristas del ciclo ser\'an  $2(| V[G-\{C_i\}] |)$ Luego como esto se mantiene para $v_i$ que pertenece a los 
+$C_i$ por f\'ormula general para todos los caminos que no contienen aristas de $C$ se tendr\'a:\\
+$\sum\limits_{1}^{k} 2|V[C_i]|(| V[G-\{C_i\}] |)$ , \\
+pero como se tiene que el grafo es no dirigido y un camino de $v_i$ a $v_j$ es igual a un camino entre $v_j$ a $v_i$ con los 
+mismos v\'ertices, se estar\'ia contando doble el n\'umero de caminos, por lo cual se llega a que:\\
+\begin{equation}
+\begin{split}
+S_2 &= \frac{ \sum\limits_{1}^{k} 2|V[C_i]|(| V[G-\{C_i\}] |) }{2}\\
+    &=  \sum\limits_{1}^{k} \frac{  2|V[C_i]|(| V[G-\{C_i\}] |)}{2}\\
+    &= \sum\limits_{1}^{k} |V[C_i]|(| V[G-\{C_i\}] |) \\
+\end{split}
+\end{equation}
+
+Luego el total de caminos en el grafo $G$ ser\'a:\\
+
+\begin{equation}
+\begin{split}
+S &= S_1 + S_2\\
+  &= \sum\limits_{1}^{k} \frac{|V[C_i]|(|V[C_i]|-1)}{2} + \sum\limits_{1}^{k} |V[C_i]|(| V[G-\{C_i\}] |)\\
+  &= \sum\limits_{1}^{k} \frac{|V[C_i]|(|V[C_i]|-1)}{2} + |V[C_i]|(| V[G-\{C_i\}] |)              [1]\\
+\end{split}
+\end{equation}
+
+%end demostración
+
+
+\section{Implementación}
+
+\begin{verbatim}
+
+solveTest(G):
+    visited1 = [False foreach v in V[G]]
+    visited2 = [False foreach v in V[G]]
+    stack = Stack()
+    C = {}
+    detect_cycle_dfs(G,0,0)
+    S = 0
+    foreach ci in C:
+        cant_Ci = 0
+        count_dfs(G,ci)
+        S += ( cant_Ci(cant_Ci-1)/2 + cant_Ci(|V[G]|-cant_Ci) 
+    return S
+
+\end{verbatim}
+
+\begin{verbatim}     
+detect_cycle_dfs(G,v,pv):                          |count_dfs(G,v,pv):
+    visited1[v] = True                             |    cant_Ci++                         
+    stack.push(v)                                  |    visited2[v] = True
+    foreach u in G[v]:                             |    foreach u in G[v]:
+        if visited1[u] and u!=pv:                  |        if not visited2[u]:
+            while stack.peek()!= u:                |            count_dfs(G,u,v)
+                ci = stack.pop()                   |
+                visited2[ci] = True                |
+                C = C + {ci}                       |
+            visited2[u] = True                     |
+            C = C + {u}                            |
+            return True                            |
+        else if not visited[u]:                    |
+            if detect_cycle_dfs(G,u,v)             |
+                return True                        |
+    stack.pop()                                    |
+    return False                                   |
+                                                   
+\end{verbatim}
+
+
+
+Ahora demostremos que el algoritmo determina la cantidad de caminos simples en el grafo $G$. Para hello debemos demostrar las modificaciones 
+agregadas al algoritmo dfs, primero para determinar el ciclo en $G$ y luego para determinar la cantidad de v\'ertices en cada $C_i$.\\ 
+Primero analizaremos el correcto funcionamiento del m\'etodo \textit{detect-cycle-dfs}. Tenemos que demostrar que que luego de terminado, en $C$ se encuentran los v\'ertices del ciclo.\\
+Para ello:\\
+
+\textit{\textbf{Lema6:}
+Encontrar una arista de retroceso en el recorrido $dfs$ de un grafo $G$ no dirigido implica la existencia de un ciclo.}\\
+\textit{Demostraci\'on:} Si se encuentra un arista de retroceso en el recorrido, digamos la arista de $(u,v)$ durante el an\'alis del 
+v\'ertice $u$, entonces se tendr\'ia a $v$ como ancestro de $u$ en el \'arbol dfs, con lo cual se tiene un camino de $v$ a $u$ en $G$, que 
+unido a la arista $(u,v)$ conforman el ciclo.\\
+\\
+
+Luego, como hemos visto que el grafo $G$ contendr\'a a $C$ como \'unico ciclo, al detectar la arista de retroceso, que se garantiza en 
+la condici\'on \textit{ if visited1[u] and u!=pv:} habremos detectado el ciclo del grafo. \\
+Ahora necesitamos probar que dentro de la condici\'on \textit{ if visited1[u] and u!=pv:} agregamos a $C$ los v\'ertices del ciclo. 
+Esto lo vemos por el hecho de que en el momento en el que un v\'ertice es descubierto (esto es, al momento en el que se realiza una llama 
+recursiva con \'el como v\'ertice), su padre en el recorrido est\'a en el tope de la pila. Y esto se garantiza, ya que cada v\'ertice se agrega a la pila antes de iterar por su lista de adyacencia, al comienzo del m\'etodo, y luego de analizado, es extra\'ido, con lo cual se mantiene el hecho que durante el ciclo $for$ del v\'ertice $v_i$ este se ecuentra en el tope de la cola, con lo cual en el llamado a un v\'ertice descendiente, que ocurre durante el ciclo esto se mantiene y por tanto cuando el v\'ertice es descubierto su padre est\'a en el tope de la pila. Luego, y como se mantiene la invariante de que el v\'ertice est\'a en el tope de la cola durante su ciclo $for$ al momento de 
+detectar la arista de retroceso durante el an\'alisis del v\'ertice $v$, en la cola estar\'a $v$ y sus ancestros de forma continua, 
+en particular tambi\'en estar\'a $u$ que es el que cierra el ciclo, con lo cual, luego de iterar la pila hasta el v\'ertice $u$ y agregar este,
+ se habr\'an agregado los v\'ertices del ciclo a $C$.\\
+\\
+
+Ahora, una vez detectados los v\'ertices del ciclo, se garantiza tambi\'en que en el arreglo $visited2$ estos quedan marcados en $True$. 
+Luego como cada $c_i\in C$ posee solo aristas con $c_j$, $c_k$ otros dos v\'ertices de $C$ y con v\'ertices de $C_i$, al marcar los v\'ertices del ciclo como visitados se garantiza que cuando se inicializa el segundo recorrido en profunidad(\textit{count-dfs}) con $c_i$, solo se visitar\'an los v\'ertices de $C_i$(hemos visto anteriormente que  todos los caminos entre $v_i\in C_i$ y $v_j\in C_j$ contienen a $c_i$ y $c_j$). Luego se visitar\'an todos los 
+v\'ertices de $C_i$ y por cada uno se aumenta la $cant_ci$, con lo cual luego de terminada la 
+ejecuci\'on $cant-ci= |V[C_i]|$.\\    
+\\
+Luego se calcula $S$ siguiendo [1].\\
+
+Ahora analicemos la complejidad temporal del algoritmo de soluci\'on para cada caso:\\
+Tenemos que $|V[G]|=|E[G]|= n$. Las inicializaciones son $O(n)$. \textit{detect-cycle-dfs}, en el peor caso se recorre la lista de adyacencia de $G$ completa antes de detectar el ciclo, esto es $O(|V|+|E|)$, que se tiene que es $O(n)$, al momento de hallar el ciclo, agregar los v\'ertices a $C$ es en el peor caso $O(n)$, con lo cual, el m\'etodo es $O(n)$. Luego en el ciclo $for$ se recorre cada $C_i$ y se tiene que \\
+ $G=\bigcup C_i$, con lo cual se termina recorriendo el grafo que es $O(n)$. El resto de operaciones se realizan en $O(1)$, con lo cual por 
+regla de la suma se tiene que la soluci\'on es $O(n)$ para cada grafo.\\
+Luego como  se analizan $T$ grafos, la complejidad temporal del algoritmo es $O(T*n)$
+
+
+
+
+
+
+
+
+
+
+% Como tenemos que cada v\'ertice de un \'arbol tiene un camino que lo une a cada uno de los restantes v\'ertices, 
+%podemos decir que para cada $v_i$ v\'ertice del \'arbol hay $n-1$ caminos que empiezan en \'el(terminan en cada uno de los restantes 
+%$n-1$ v\'ertices respectivamente). Ahora, como tenemos que el camino de $v_i$ a $v_j$ es igual al camino de $v_j$ a $v_i$ en el \'arbol
+% entonces:\\
+%sean $v_1,v_2,....,v_n$ los v\'ertices de $v_$ 
+
+
+
+%Veamos la cantidad de caminos simples que hay en un \'arbol. Como en un \'arbol cada v\'ertice tiene un \'unico camino que lo une a cada uno 
+%de los restantes v\'ertices. Sean $v_i$ los v\'ertices del \'arbol, hay $n-1$ caminos que empiezan en $v_i$ para cada $v_i$(empieza 
+%en \'el y termina en cualquiera de los restantes $n-1$ v\'ertices del \'arbol). Ahora como tenemos que es no dirigido, el camino de $v_i$ a 
+%$v_j$ ser\'a igual al camino de $v_j$ a $v_i$ 
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

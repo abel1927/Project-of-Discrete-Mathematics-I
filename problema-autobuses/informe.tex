@@ -1,0 +1,134 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{manfnt}
+\usepackage{amsfonts,amsmath, amsthm}
+\usepackage[margin=2cm]{geometry}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+
+\begin{document}
+
+  \title{Informe\\
+  Matem\'atica Discreta I\\
+     Pashmak and Buses\\
+     Problema:459C}
+  \author{Abel Molina S\'anchez\\
+  Grupo 2-11\\
+  Ciencias de la Computaci\'on\\
+  Universidad de La Habana}
+    \maketitle  
+
+\newpage
+
+\section{Problema}
+
+\begin{center}
+                   
+C. Pashmak and Buses
+
+\end{center}
+
+Recently Pashmak has been employed in a transportation company. The company has $k$ buses and has a contract with a school 
+which has $n$ students. The school planned to take the students to $d$ different places for $d$ days (each day in one place). 
+Each day the company provides all the buses for the trip. Pashmak has to arrange the students in the buses. He wants to arrange the students in a 
+way that no two students become close friends. In his ridiculous idea, two students will become close friends if and only if they are in the same buses
+ for all d days.\\
+Please help Pashmak with his weird idea. Assume that each bus has an unlimited capacity.\\
+\\
+Input:\\
+The first line of input contains three space-separated integers $n,k,d$
+($1\leq n$, $d\leq 1000$;$1\leq k\leq 10^9$)\\
+\\
+Output\\
+If there is no valid arrangement just print $-1$. 
+Otherwise print $d$ lines, in each of them print $n$ integers. The \textit{j-th} integer of the 
+\textit{i-th} line shows which bus the \textit{j-th} student has to take 
+on the \textit{i-th} day. You can assume that the buses are numbered from $1$ to $k$.\\
+
+
+\section{Interpretación e idea}
+  
+Se tienen $n$ alumnos, $d$ d\'ias y $k$ autobuses. Se necesita saber si existe al menos una forma o no de asignar los autobuses a cada estudiante durante los $d$ d\'ias de tal forma que no existan $2$ estudiantes que coincidan cada 
+d\'ia en los mismos autobuses.\\
+Esto es, se necesita conocer si existen al menos $n$ distribuciones distintas de los $k$ autobuses en los $d$ d\'ias.
+ En caso de existir hay que generar una de ellas.\\
+\textit{Idea:}\\
+Conociendo la forma de calcular la cantidad de $d$-permutaciones de un conjunto de tama\~no $k$, por el principio del palomar se puede conocer si existe una posible soluci\'on al problema, ya que en caso de haber menos de $n$ formas distintas de distribuci\'on es seguro que al menos $2$ alumnos poseer\'an la misma distribuci\'on.\\
+Luego para obtener una de las posibles soluciones se busca generar las primeras $n$ distribuciones de $d$ 
+posiciones donde cada posici\'on va de $1$ a $k$.\\
+
+\newpage
+
+\section{Algoritmo y correctitud}
+
+\begin{verbatim}
+
+solve(n,k,d):
+    if n > k**d:
+        fin no solucion
+    D = matriz[d][n]
+    for i in [0,...,d-1]
+        for j in [0,...,n-1]
+            D[i,j] = 1
+    distribution = [1 for i in [0,..,d-1]]
+    for c in [1,....,n-1]
+        for j in [d-1,d-2,...,0]
+            distribution[j] = (distribution[j]%k)+1
+                if distribution[j] != 1
+                    break
+        for j in [0,...,d-1]
+            D[j][c] = distribution[j]
+    return D 
+\end{verbatim}
+
+
+Llamaremos distribuci\'on a una fila de $d$ valores, donde cada posici\'on asume valores en $[1,k]$ y que constituye la repartici\'on de los autobuses por d\'ias de un alumno. O sea, en cada uno de los $d$ d\'ias hay un autob\'us asignado.\\
+No hay restricciones en cuanto a capacidad de los autobuses, por lo cual todos los alumnos podr\'ian tomar para
+ un d\'ia $d_i$ el mismo autob\'us.\\
+\textit{Luego diremos que dos distribuciones, $d1$ y $d2$, son distintas si para una posici\'on $i$, $d1_i\neq d2_i$. O sea, si no tienen igual valor en todas las posiciones.}\\
+\textit{Diremos que una distribuci\'on $d1$ es mayor que una distribuci\'on $d2$ si en el recorrido i=[0,..,d-1], en la primera posici\'on donde $d1_i\neq d2_i$, se tiene que $d1_i > d2_i$.}\\
+
+Una vez vistas las definiciones , tenemos que buscar una distribuci\'on distinta para cada alumno. 
+Tenemos que el n\'umero de posibles distribuciones ser\'a igual a $k^d$ que es el n\'umero de $d$-permutaciones con repetici\'on de un conjunto de tama\~no k (cada posici\'on $d_i$ tiene $k$ opciones de autobuses, $1$ 
+entre $\{1,2,...,k\}$, con lo cual $k*k...*k = k^d$).\\
+Luego habr\'a soluci\'on si logramos que exista una distribuci\'on distinta para cada alumno, luego como hay $n$ alumnos y $k^d$ distribuciones, por el Principio del palomar sabemos que para tener una soluci\'on 
+es necesario que $n\leq k^d$ ya que si hay m\'as alumnos que posibles distribuciones, al menos 2 alumnos tendr\'an la misma distribuci\'on, con lo cual no habr\'ia soluci\'on.\\ 
+Luego  en la condici\'on \textit{if} inicial se comprueba la existencia o no de soluci\'on.\\
+Ahora necesitamos ver que las $n$ distribuciones que se crean en el ciclo son v\'alidas y distintas.\\
+Que son v\'alidas se garantiza porque tenemos que los restos con $k$ son $[0,1,...,k-1]$, y por tanto los restos $+1$ estar\'an en el rango $[1,...,k]$ y todos se alcanzan porque sabemos que $i\in[1,...,k-1]$ deja 
+resto $i$ con $k$ y $k\%k=0$.\\
+Luego para demostrar que las distribuciones formadas son distintas nos apoyaremos en las comparaciones definidas anteriormente, demostrando que cada distribuci\'on es mayor que la anterior. Vamos a hacerlo por inducci\'on en la iteraci\'on del donde se forma la distribuci\'on.\\
+ Tenemos que en un primer momento se tiene la distribuci\'on $d1 = [d_i=1$ $\forall i\in [0,..,d-1]]$ que es una posible. Luego la primera que se forma en el ciclo, es la distribuci\'on \\
+ $ d2 = [d_0=1,d_1=1,...,d_{d-2}=1,d_{d-1} = 2]$, que es mayor que $d1$.\\ 
+ Ahora asumamos por hip\'otesis que se cumple para la distribuci\'on $dk$.\\ 
+ Sea ahora el momento donde se est\'a formando la distribuci\'on $dk+1$, tenemos que en ese momento \textit{distribution} es igual a $dk$. Luego, como se recorren las posiciones desde $[d-1,..,0]$, sea $j$ la primera posici\'on donde \textit{$distribution[j]\neq 1$}. Tenemos que $distribution_{i+1} [j]$ se hace $1$ solo cuando $distribution_{i} [j] = 5$, porque en $[1,...,k]$ que son los valores alcanzables solo $k\%k=0$ y por tanto 
+ $k\%k+1=1$.\\
+ Luego tenemos que para $j$ $dk[j]= i \in[1,...,k-1]$, por tanto $i\%k=i$ e $i + 1 > i$, con lo cual la 
+ distrubuci\'on $dk+1$ es mayor que la distribuci\'on de $k$. Luego queda demostrado que cada distribuci\'on es mayor que la anterior y por tanto distintas.\\
+ 
+   
+\textit{Complejidad temporal}\\
+
+ Determinar si se cumple o no el principio del palomar es $O(d)$.\\
+ Luego para generar las $n$ distribuciones de los estudiantes se realizan dos ciclos $for$ anidados, el primero realiza $O(n)$ iteraciones y el segundo $O(d)$ iteraciones por lo cual completar las distribuciones es $O(n*d)$.\\
+ Luego para imprimir la solucion se recorre todas las distribuciones, con lo cual se realiza nuevamente en $O(n*d)$, con lo cual por regla de la suma se tiene que la complejidad temporal de la soluci\'on es $O(n*d)$.\\
+ \\
+
+\section{Tester}
+
+
+ Como parte de la realizaci\'on del ejercicio se incluye un tester y un generador de casos. Ambos estan incluidos en la carpeta \textit{tester-casos-prueba} junto con una copia de la soluci\'on.\\
+ Dentro del generador se incluyen dos m\'etodos para generar una entrada para el problema. 
+ Uno crea el archivo \textit{casoX.in} con los parametros elegidos de forma manual, y el otro genera la entreda generando 3 enteros de forma aleatoria utilizando el m\'etodo \textit{randint(a,b)} de la libreria random de python.\\
+El \textit{tester.py} para comprobar las soluciones de cada caso de prueba:\\
+Lee la entrada y comprueba por el Principio del polomar que el caso deba tener o no soluci\'on, en caso de no tenerla comprueba que la salida del algoritmo haya sido '-1'.\\
+ Luego lee la salida completa del algoritmo y comprueba que haya sido con el formato correcto, esto es: 
+ $d$ filas con $n$ columnas.\\
+ Se crea un \textit{set} para almacenar las distribuciones de cada estudiante y comprobar que no hay 2 iguales. Se recorre la matriz de soluci\'on comprobando que cada n\'umero en cada distribuci\'on est\'a 
+ entre $1$ y $k$(representan un autob\'us valido) y se van agregando las distribuciones al set, si se detectan 2 iguales en alg\'un momento se determina una soluci\'on err\'onea, en caso contrario luego de terminada la comprobaci\'on la soluci\'on ser\'ia correcta.\\
+El tester comprobar\'a todos los tests incluidos en la carpeta \textit{./tests} con un '.out'. Por tanto es importante que si se agrega alg\'un nuevo caso para trabajar la soluci\'on este tenga un '.in' y un '.out' con igual nombre y diferente al del resto de casos dentro de la carpeta \textit{tester}.\\
+ Como casos de pruebas que se consideran importantes analizar est\'an aquellos que puedan cosiderarse extremos dentro de la ejecuci\'on. 
+ Comprobamos para cuando $n=k=d=1$(caso1), comprobamos el test de estr\'es del algoritmo para cuando cada par\'ametro recibe el m\'aximo valor posible dentro de las restricciones del problema, esto es $n=d=1000$ y $k=10^9$(caso3). 
+ Se comprueba para cuando no existe soluci\'on y deja de existir por una diferencia m\'inima, esto es, cuando $n=k^d + 1$, lo hacemos con $n = 65$, $k=4$, $d=3$(caso4). Comprobamos cuando $n=k^d$, lo hacemos con $n=64(27)$, $k=4(3)$, $d=3(3)$(casos 5 y (3)).\\
+
+\end{document}
